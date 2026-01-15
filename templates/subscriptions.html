@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 style="padding:12px;">Subscriptions</h2>
+
+<div class="grid">
+    {% for name, count, avatar in channels %}
+    <a class="card" href="/channel/{{ name }}">
+        <div class="thumb avatar">
+            {% if avatar %}
+                <img src="/media/thumb?path={{ avatar }}" loading="lazy">
+            {% else %}
+                <div class="no-thumb">{{ name[0] }}</div>
+            {% endif %}
+        </div>
+
+        <div class="meta">
+            <div class="title">{{ name }}</div>
+            <div class="channel">{{ count }} videos</div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}
