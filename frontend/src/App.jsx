@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Home, Clock, Grid, List, Search, ChevronLeft, X, Trash2, ExternalLink, Plus, Edit2, Tag, TrendingUp, Video, Sparkles, Calendar, Eye } from 'lucide-react';
 
-const API_URL = 'http://localhost:3001';
+const API_URL = 'http://10.209.179.113:3001';
 
 const App = () => {
   const [view, setView] = useState('home');

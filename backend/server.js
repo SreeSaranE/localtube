@@ -42,7 +42,11 @@ app.get('/api/channel-avatar/:channel/:file', (req, res) => {
   fs.existsSync(p) ? res.sendFile(p) : res.sendStatus(404);
 });
 
-app.listen(config.PORT, () =>
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
+app.listen(config.PORT, '0.0.0.0', () =>
   console.log(`LocalTube backend running on ${config.PORT}`)
 );
 
