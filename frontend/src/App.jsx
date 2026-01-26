@@ -154,6 +154,18 @@ const App = () => {
     ch.videos.some(v => v.title.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
+  const matchesSearch = (text) =>
+    text.toLowerCase().includes(searchQuery.toLowerCase());
+
+  const filterVideos = (videos) => {
+    if (!searchQuery.trim()) return videos;
+
+    return videos.filter(v =>
+      matchesSearch(v.title) ||
+      matchesSearch(v.channel.name)
+    );
+  };
+
   const isDark = theme === 'dark';
   const bg = isDark ? 'bg-zinc-950' : 'bg-gray-50';
   const bgSecondary = isDark ? 'bg-zinc-900' : 'bg-white';
@@ -391,8 +403,10 @@ const App = () => {
   };
 
   const HomeView = () => {
-    const allVideos = channels.flatMap(ch =>
-      ch.videos.map(v => ({ ...v, channel: ch }))
+    const allVideos = filterVideos(
+      channels.flatMap(ch =>
+        ch.videos.map(v => ({ ...v, channel: ch }))
+      )
     ).sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
 
     return (
@@ -476,7 +490,7 @@ const App = () => {
         </div>
 
         <div className={gridView ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6' : 'space-y-4'}>
-          {categoryVideos.map(v => (
+          {filterVideos(categoryVideos).map(v => (
             <VideoCard key={`${v.channel.id}-${v.id}`} video={v} channel={v.channel} compact={!gridView} />
           ))}
         </div>
@@ -548,7 +562,9 @@ const App = () => {
         </div>
 
         <div className={gridView ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6' : 'space-y-4'}>
-          {selectedChannel.videos.map(v => (
+          {filterVideos(
+            selectedChannel.videos.map(v => ({ ...v, channel: selectedChannel }))
+          ).map(v => (
             <VideoCard key={v.id} video={v} channel={selectedChannel} compact={!gridView} />
           ))}
         </div>
@@ -577,6 +593,14 @@ const App = () => {
             const channel = channels.find(ch => ch.name === entry.channelName);
             const video = channel?.videos.find(v => v.id === entry.videoId);
             if (!video || !channel) return null;
+
+            if (
+              searchQuery &&
+              !video.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+              !channel.name.toLowerCase().includes(searchQuery.toLowerCase())
+            ) {
+              return null;
+            }
             
             return (
               <div key={idx} className={`flex items-center gap-6 ${bgCard} rounded-xl p-4 border ${border}`}>
@@ -617,7 +641,13 @@ const App = () => {
         </div>
       ) : (
         <div className="space-y-3">
-          {deletedVideos.map((entry, idx) => (
+          {deletedVideos
+            .filter(entry =>
+              !searchQuery ||
+              entry.videoTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              entry.channelName.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+            .map((entry, idx) => (
             <div key={idx} className={`${bgCard} rounded-xl p-6 flex items-center justify-between border ${border} ${hover} transition-colors`}>
               <div className="flex-1 min-w-0 mr-4">
                 <h3 className={`font-semibold ${text} mb-2 truncate`}>{entry.videoTitle}</h3>
