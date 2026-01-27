@@ -54,12 +54,18 @@ const App = () => {
 
   // Load saved data
   useEffect(() => {
-    const savedHistory = localStorage.getItem('localtube_history');
-    if (savedHistory) setWatchHistory(JSON.parse(savedHistory));
-    
-    const savedDeleted = localStorage.getItem('localtube_deleted');
-    if (savedDeleted) setDeletedVideos(JSON.parse(savedDeleted));
-    
+    // Load history & deleted from backend
+    fetch('/api/history')
+      .then(r => r.json())
+      .then(setWatchHistory)
+      .catch(() => setWatchHistory([]));
+
+    fetch('/api/deleted')
+      .then(r => r.json())
+      .then(setDeletedVideos)
+      .catch(() => setDeletedVideos([]));
+
+    // Categories still local
     const savedCategories = localStorage.getItem('localtube_categories');
     if (savedCategories) {
       setCategories(JSON.parse(savedCategories));
@@ -72,6 +78,7 @@ const App = () => {
     }
   }, []);
 
+
   const addToHistory = (video, channel) => {
     const entry = {
       videoId: video.id,
@@ -82,7 +89,12 @@ const App = () => {
     
     const newHistory = [entry, ...watchHistory.filter(h => h.videoId !== video.id)].slice(0, 50);
     setWatchHistory(newHistory);
-    localStorage.setItem('localtube_history', JSON.stringify(newHistory));
+
+    fetch('/api/history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newHistory)
+    });
   };
 
   const addToDeleted = (video, channel) => {
@@ -100,7 +112,12 @@ const App = () => {
     const newDeleted = [entry, ...filtered];
 
     setDeletedVideos(newDeleted);
-    localStorage.setItem('localtube_deleted', JSON.stringify(newDeleted));
+
+    fetch('/api/deleted', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newDeleted)
+    });
   };
 
   const openOnYouTube = (videoTitle, channelName) => {

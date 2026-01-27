@@ -6,6 +6,18 @@ import chokidar from 'chokidar';
 import config from './config.js';
 import VideoScanner from './scanner.js';
 
+const DATA_DIR = path.join(process.cwd(), 'data');
+const HISTORY_FILE = path.join(DATA_DIR, 'history.json');
+const DELETED_FILE = path.join(DATA_DIR, 'deleted.json');
+
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR);
+if (!fs.existsSync(HISTORY_FILE)) fs.writeFileSync(HISTORY_FILE, '[]');
+if (!fs.existsSync(DELETED_FILE)) fs.writeFileSync(DELETED_FILE, '[]');
+
+const readJson = file => JSON.parse(fs.readFileSync(file, 'utf8'));
+const writeJson = (file, data) =>
+  fs.writeFileSync(file, JSON.stringify(data, null, 2));
+
 const app = express();
 const scanner = new VideoScanner();
 
@@ -71,4 +83,24 @@ app.delete('/api/video/:channelFolder/:videoId', async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Delete failed' });
   }
+});
+
+// History
+app.get('/api/history', (req, res) => {
+  res.json(readJson(HISTORY_FILE));
+});
+
+app.post('/api/history', (req, res) => {
+  writeJson(HISTORY_FILE, req.body);
+  res.json({ success: true });
+});
+
+// Deleted log
+app.get('/api/deleted', (req, res) => {
+  res.json(readJson(DELETED_FILE));
+});
+
+app.post('/api/deleted', (req, res) => {
+  writeJson(DELETED_FILE, req.body);
+  res.json({ success: true });
 });
