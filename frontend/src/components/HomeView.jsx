@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Video, Play, Clock, Grid, List, AlertCircle } from 'lucide-react';
+import { Sparkles, Video, Play, Grid, List, AlertCircle } from 'lucide-react';
 import VideoCard from './VideoCard';
 
 const HomeView = ({ 
@@ -10,7 +10,6 @@ const HomeView = ({
   gridView, 
   setGridView, 
   playVideo, 
-  watchHistory, 
   fetchChannels,
   theme 
 }) => {
@@ -96,7 +95,7 @@ const HomeView = ({
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <div className={`${bgCard} rounded-xl p-6 border ${border}`}>
             <div className="flex items-center gap-3">
               <Video className="w-8 h-8 text-red-500" />
@@ -112,15 +111,6 @@ const HomeView = ({
               <div>
                 <p className={`text-3xl font-bold ${text}`}>{allVideos.length}</p>
                 <p className={`${textSecondary}`}>Videos</p>
-              </div>
-            </div>
-          </div>
-          <div className={`${bgCard} rounded-xl p-6 border ${border}`}>
-            <div className="flex items-center gap-3">
-              <Clock className="w-8 h-8 text-red-500" />
-              <div>
-                <p className={`text-3xl font-bold ${text}`}>{watchHistory.length}</p>
-                <p className={`${textSecondary}`}>Watch History</p>
               </div>
             </div>
           </div>

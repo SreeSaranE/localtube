@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Clock, Search, Tag, Video, Trash2 } from 'lucide-react';
+import { Home, Search, Tag, Video, Trash2 } from 'lucide-react';
 
 // Import all view components
 import HomeView from './components/HomeView';
 import ChannelsView from './components/ChannelsView';
 import ChannelView from './components/ChannelView';
 import PlayerView from './components/PlayerView';
-import HistoryView from './components/HistoryView';
 import DeletedLogsView from './components/DeletedLogsView';
 import CategoryView from './components/CategoryView';
 import CategoryModal from './components/CategoryModal';
@@ -18,7 +17,6 @@ const App = () => {
   const [channels, setChannels] = useState([]);
   const [selectedChannel, setSelectedChannel] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const [watchHistory, setWatchHistory] = useState([]);
   const [deletedVideos, setDeletedVideos] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -76,11 +74,6 @@ const App = () => {
 
   // Load saved data
   useEffect(() => {
-    fetch(`${API_URL}/history`)
-      .then(r => r.json())
-      .then(setWatchHistory)
-      .catch(() => setWatchHistory([]));
-
     fetch(`${API_URL}/deleted`)
       .then(r => r.json())
       .then(setDeletedVideos)
@@ -93,28 +86,6 @@ const App = () => {
       setCategories([]);
     }
   }, []);
-
-  const addToHistory = (video, channel) => {
-    const entry = {
-      videoId: video.id,
-      videoTitle: video.title,
-      channelName: channel.name,
-      channelFolder: channel.folder,
-      videoFile: video.file,
-      thumbnail: video.thumbnail,
-      duration: video.duration,
-      watchedAt: new Date().toISOString()
-    };
-    
-    const newHistory = [entry, ...watchHistory.filter(h => h.videoId !== video.id)].slice(0, 50);
-    setWatchHistory(newHistory);
-
-    fetch(`${API_URL}/history`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newHistory)
-    });
-  };
 
   const addToDeleted = (video, channel) => {
     const entry = {
@@ -167,25 +138,6 @@ const App = () => {
   };
 
   const playVideo = (video, channel) => {
-    setSelectedVideo({ ...video, channelName: channel.name, channelFolder: channel.folder });
-    setView('player');
-    addToHistory(video, channel);
-  };
-
-  const playFromHistory = (entry) => {
-    const video = {
-      id: entry.videoId,
-      title: entry.videoTitle,
-      file: entry.videoFile,
-      thumbnail: entry.thumbnail,
-      duration: entry.duration
-    };
-    
-    const channel = {
-      name: entry.channelName,
-      folder: entry.channelFolder
-    };
-    
     setSelectedVideo({ ...video, channelName: channel.name, channelFolder: channel.folder });
     setView('player');
   };
@@ -250,12 +202,6 @@ const App = () => {
           onClick={() => setView('channels')} 
         />
         <SidebarButton 
-          icon={Clock} 
-          label="History" 
-          active={view === 'history'} 
-          onClick={() => setView('history')} 
-        />
-        <SidebarButton 
           icon={Trash2} 
           label="Deleted" 
           active={view === 'deleted'} 
@@ -310,7 +256,6 @@ const App = () => {
             gridView={gridView}
             setGridView={setGridView}
             playVideo={playVideo}
-            watchHistory={watchHistory}
             fetchChannels={fetchChannels}
             theme={theme}
           />
@@ -345,17 +290,6 @@ const App = () => {
             video={selectedVideo}
             onBack={() => setView('home')}
             onDelete={handleDeleteVideo}
-            theme={theme}
-          />
-        )}
-        
-        {view === 'history' && (
-          <HistoryView 
-            watchHistory={watchHistory}
-            searchQuery={searchQuery}
-            gridView={gridView}
-            setGridView={setGridView}
-            onPlayFromHistory={playFromHistory}
             theme={theme}
           />
         )}
