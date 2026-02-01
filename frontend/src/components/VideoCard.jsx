@@ -1,5 +1,6 @@
 import React from 'react';
 import { Play, Eye } from 'lucide-react';
+import { getSavedProgress } from './PlayerView';
 
 const VideoCard = ({ video, channel, compact = false, onPlay, theme }) => {
   const API_URL = import.meta.env.VITE_API_URL || '/api';
@@ -15,6 +16,11 @@ const VideoCard = ({ video, channel, compact = false, onPlay, theme }) => {
   const thumbnailUrl = video.thumbnail 
     ? `${API_URL}/thumbnail/${channel.folder}/${video.thumbnail}`
     : null;
+
+  // Check for saved watch progress
+  const saved = getSavedProgress(video.id);
+  const hasProgress = saved && saved.currentTime > 3 && saved.duration > 0;
+  const progressPercent = hasProgress ? (saved.currentTime / saved.duration) * 100 : 0;
 
   return (
     <div
@@ -41,11 +47,35 @@ const VideoCard = ({ video, channel, compact = false, onPlay, theme }) => {
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
           <Play className="w-16 h-16 text-white/0 group-hover:text-white/90 transition-all transform scale-75 group-hover:scale-100" />
         </div>
-        {video.duration && (
-          <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
-            {video.duration}
+
+        {/* Bottom row: progress bar track + badges */}
+        <div className="absolute bottom-0 left-0 right-0">
+          {/* Progress bar */}
+          {hasProgress && (
+            <div className="w-full h-1 bg-black/40">
+              <div
+                className="h-full bg-red-500"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          )}
+
+          {/* Badge row */}
+          <div className={`flex items-end justify-between px-2 ${hasProgress ? 'pb-1.5 pt-1' : 'py-1.5'}`}>
+            {hasProgress && (
+              <span className="bg-red-600 text-white text-xs font-semibold px-2 py-0.5 rounded">
+                Continue
+              </span>
+            )}
+            {/* push duration to the right even when no progress badge */}
+            {!hasProgress && <span />}
+            {video.duration && (
+              <span className="bg-black/80 text-white text-xs px-2 py-0.5 rounded">
+                {video.duration}
+              </span>
+            )}
           </div>
-        )}
+        </div>
       </div>
       <div className="p-4 flex-1">
         <h3 className={`font-semibold ${text} mb-2 line-clamp-2 group-hover:text-red-500 transition-colors`}>

@@ -185,8 +185,8 @@ const App = () => {
 
   return (
     <div className={`min-h-screen flex ${bg}`}>
-      {/* Sidebar */}
-      <div className={`w-64 p-4 border-r ${border} ${bgSecondary} space-y-2`}>
+      {/* Sidebar — sticky, full viewport height, scrolls independently */}
+      <div className={`w-64 flex-shrink-0 sticky top-0 h-screen overflow-y-auto p-4 border-r ${border} ${bgSecondary} space-y-2`}>
         <h1 className="text-2xl font-bold text-red-600 mb-6">LocalTube</h1>
 
         <SidebarButton 
@@ -233,8 +233,8 @@ const App = () => {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 p-6 overflow-y-auto space-y-6">
+      {/* Main Content — independent scroll column */}
+      <div className="flex-1 h-screen overflow-y-auto p-6 space-y-6">
         {view !== 'player' && (
           <div className={`${bgSecondary} p-4 rounded-xl border ${border} flex items-center gap-3`}>
             <Search className={`${textSecondary}`} />
