@@ -234,10 +234,7 @@ Supported formats:
 - ✅ No unnecessary data collection
 - ✅ Cleaner codebase
 - ✅ Better performance (less data to manage)
-
-### Kept
 - ✅ Delete functionality with logging
-- ✅ All other features intact
 
 ## 📄 License
 
